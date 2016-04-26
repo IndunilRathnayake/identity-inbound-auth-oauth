@@ -162,7 +162,7 @@
                                 <td>
                                     <input class='text-box-big' id='oauth_user_password'
                                            name="oauth_user_password" size='30'
-                                           type="password" autocomplete="off"/>
+                                           type="password"/>
                                 </td>
                             </tr>
                             <tr>
