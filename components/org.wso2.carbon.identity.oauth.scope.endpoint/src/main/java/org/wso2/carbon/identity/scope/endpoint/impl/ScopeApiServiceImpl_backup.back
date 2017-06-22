@@ -1,0 +1,216 @@
+package org.wso2.carbon.identity.scope.endpoint.impl;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2ScopeClientException;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2ScopeException;
+import org.wso2.carbon.identity.oauth2.OAuth2ScopeService;
+import org.wso2.carbon.identity.oauth2.Oauth2ScopeConstants;
+import org.wso2.carbon.identity.oauth2.dao.ScopeDO;
+import org.wso2.carbon.identity.scope.endpoint.ApiResponseMessage;
+import org.wso2.carbon.identity.scope.endpoint.Constants;
+import org.wso2.carbon.identity.scope.endpoint.ScopeApiService;
+import org.wso2.carbon.identity.scope.endpoint.dto.ScopeDTO;
+import org.wso2.carbon.identity.scope.endpoint.util.ScopeUtils;
+
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class ScopeApiServiceImpl_backup extends ScopeApiService {
+    private static final Log LOG = LogFactory.getLog(ScopeApiServiceImpl_backup.class);
+    OAuth2ScopeService oAuth2ScopeService = new OAuth2ScopeService();
+
+    @Override
+    public Response deleteScopeByKey(String scopeKey) {
+        try {
+            oAuth2ScopeService.deleteScopeByKey(scopeKey);
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while deleting scope by key '%s'. " + scopeKey, e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+
+        return Response.status(Response.Status.OK).entity(new ApiResponseMessage(ApiResponseMessage.OK,
+                "Successfully deleted scope by key " + scopeKey)).build();
+    }
+
+    @Override
+    public Response deleteScopes(List<String> scope) {
+        try {
+            oAuth2ScopeService.deleteScopes(scope);
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while deleting scopes. ", e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+
+        return Response.status(Response.Status.OK).entity(new ApiResponseMessage(ApiResponseMessage.OK,
+                "Successfully deleted scopes.")).build();
+    }
+
+    @Override
+    public Response getScopeByKey(String scopeKey) {
+        ScopeDO scope = null;
+
+        try {
+            oAuth2ScopeService.getScopeByKey(scopeKey);
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while get scope by key. ", e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+        return Response.ok(scope).build();
+    }
+
+    @Override
+    public Response getScopeKeys() {
+        List<String> scopeKeys = new ArrayList<>();
+
+        try {
+            scopeKeys = oAuth2ScopeService.getAllScopeKeys();
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while getting all available scope keys. ", e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+        return Response.ok(scopeKeys).build();
+    }
+
+    @Override
+    public Response getScopeKeysByBindings(List<String> bindings) {
+        List<String> scopeKeys = new ArrayList<>();
+
+        try {
+            scopeKeys = oAuth2ScopeService.getScopeKeysByBindings(bindings);
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while getting scope keys by bindings. ", e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+        return Response.ok(scopeKeys).build();
+    }
+
+    @Override
+    public Response getScopes(String filter) {
+        Set<ScopeDO> scopes = new HashSet<>();
+
+        try {
+            scopes = oAuth2ScopeService.getAllScopes(filter);
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while getting available scopes. ", e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+        return Response.ok(scopes).build();
+    }
+
+    @Override
+    public Response getScopesByBindings(List<String> bindings) {
+        Set<ScopeDO> scopes = new HashSet<>();
+
+        try {
+            scopes = oAuth2ScopeService.getScopesByBindings(bindings);
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while getting scopes by bindings. ", e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+        return Response.ok(scopes).build();
+    }
+
+    @Override
+    public Response registerScopes(List<ScopeDTO> scopeDTOList) {
+        try {
+            oAuth2ScopeService.registerScopes(ScopeUtils.getScopes(scopeDTOList));
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while registering scopes ", e);
+            }
+            if (Oauth2ScopeConstants.ErrorMessages.ERROR_CODE_CONFLICT_REQUEST_EXISTING_SCOPE.getCode().equals(e.getErrorCode())) {
+                ScopeUtils.handleConflict(e.getMessage(), e.getErrorCode());
+            } else {
+                ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+            }
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+        return Response.status(Response.Status.CREATED).entity(new ApiResponseMessage(ApiResponseMessage.OK,
+                "Scope registration is successful.")).build();
+    }
+
+    @Override
+    public Response updateScopeByKey(ScopeDTO scope, String scopeKey) {
+        try {
+            oAuth2ScopeService.updateScopeByKey(ScopeUtils.getScope(scope), scopeKey);
+        } catch (IdentityOAuth2ScopeClientException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Client Error while updating a scope by key: %s" + scopeKey, e);
+            }
+            ScopeUtils.handleBadRequest(e.getMessage(), e.getErrorCode());
+
+        } catch (IdentityOAuth2ScopeException e) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, e.getErrorCode(), LOG, e);
+        } catch (Throwable throwable) {
+            ScopeUtils.handleInternalServerError(Constants.SERVER_ERROR, Oauth2ScopeConstants
+                    .ErrorMessages.ERROR_CODE_UNEXPECTED.getCode(), LOG, throwable);
+        }
+        return Response.status(Response.Status.OK).entity(new ApiResponseMessage(ApiResponseMessage.OK,
+                "Successfully updated scope by key " + scopeKey)).build();
+    }
+}
