@@ -23,10 +23,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.ImportResponse;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationConfig;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.SpFileContent;
 import org.wso2.carbon.identity.application.common.model.User;
+import org.wso2.carbon.identity.application.template.mgt.IdentityApplicationTemplateMgtException;
+import org.wso2.carbon.identity.application.template.mgt.dto.SpTemplateDTO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.OAuthAdminService;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -35,6 +40,7 @@ import org.wso2.carbon.identity.oauth.dcr.DCRMConstants;
 import org.wso2.carbon.identity.oauth.dcr.bean.Application;
 import org.wso2.carbon.identity.oauth.dcr.bean.ApplicationRegistrationRequest;
 import org.wso2.carbon.identity.oauth.dcr.bean.ApplicationUpdateRequest;
+import org.wso2.carbon.identity.oauth.dcr.bean.CustomMetadata;
 import org.wso2.carbon.identity.oauth.dcr.exception.DCRMException;
 import org.wso2.carbon.identity.oauth.dcr.internal.DCRDataHolder;
 import org.wso2.carbon.identity.oauth.dcr.util.DCRConstants;
@@ -44,7 +50,6 @@ import org.wso2.carbon.identity.oauth.dto.OAuthConsumerAppDTO;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * DCRMService service is used to manage OAuth2/OIDC application registration.
@@ -56,6 +61,7 @@ public class DCRMService {
     private static final String AUTH_TYPE_OAUTH_2 = "oauth2";
     private static final String OAUTH_VERSION = "OAuth-2.0";
     private static final String GRANT_TYPE_SEPARATOR = " ";
+    private static final int CREATED = 201;
 
     /**
      * Get OAuth2/OIDC application information with client_id
@@ -103,17 +109,27 @@ public class DCRMService {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String applicationOwner = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String clientName = updateRequest.getClientName();
+        List<CustomMetadata> customMetadataList = updateRequest.getCustomMetadata();
+        String templateName = getTemplateName(customMetadataList);
 
         // Update Service Provider
-        ServiceProvider sp = getServiceProvider(appDTO.getApplicationName(), tenantDomain);
         if (StringUtils.isNotEmpty(clientName)) {
             // Regex validation of the application name.
             if (!DCRMUtils.isRegexValidated(clientName)) {
                 throw new DCRMException("The Application name: " + clientName + " is not valid! It is not adhering to" +
                         " the regex: " + DCRConstants.APP_NAME_VALIDATING_REGEX);
             }
-            sp.setApplicationName(clientName);
-            updateServiceProvider(sp, tenantDomain, applicationOwner);
+            if (templateName == null && !DCRMUtils.isEnableDefaultTemplateSupport()) {
+                ServiceProvider sp = getServiceProvider(appDTO.getApplicationName(), tenantDomain);
+                sp.setApplicationName(clientName);
+                updateServiceProvider(sp, tenantDomain, applicationOwner);
+            }
+        }
+
+        if (templateName != null || DCRMUtils.isEnableDefaultTemplateSupport()) {
+            // Update service provider using the requested template.
+            updateServiceProviderFromTemplate(applicationOwner, tenantDomain, appDTO.getApplicationName(),
+                    clientName, templateName);
         }
 
         // Update application
@@ -170,6 +186,8 @@ public class DCRMService {
         String applicationOwner = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String spName = registrationRequest.getClientName();
+        List<CustomMetadata> customMetadataList = registrationRequest.getCustomMetadata();
+        String templateName = getTemplateName(customMetadataList);
 
         // Regex validation of the application name.
         if (!DCRMUtils.isRegexValidated(spName)) {
@@ -182,8 +200,14 @@ public class DCRMService {
             throw DCRMUtils.generateClientException(DCRMConstants.ErrorMessages.CONFLICT_EXISTING_APPLICATION, spName);
         }
 
-        // Create a service provider.
-        ServiceProvider serviceProvider = createServiceProvider(applicationOwner, tenantDomain, spName);
+        ServiceProvider serviceProvider;
+        if (templateName != null || DCRMUtils.isEnableDefaultTemplateSupport()) {
+            // Create a service provider using the requested template.
+            serviceProvider = createServiceProviderFromTemplate(applicationOwner, tenantDomain, spName, templateName);
+        } else {
+            // Create a service provider.
+            serviceProvider = createServiceProvider(applicationOwner, tenantDomain, spName);
+        }
 
         OAuthConsumerAppDTO createdApp;
         try {
@@ -206,6 +230,74 @@ public class DCRMService {
             throw ex;
         }
         return buildResponse(createdApp);
+    }
+
+    private ServiceProvider createServiceProviderFromTemplate(String applicationOwner, String tenantDomain, String spName,
+                                                              String templateName) throws DCRMException {
+        ServiceProvider serviceProvider;
+        try {
+            SpFileContent spFileContent = getSpFileContent(tenantDomain, templateName);
+            ApplicationBasicInfo spBasicInfo = getSPBasicInfo(spName);
+
+            ImportResponse importResponse = DCRDataHolder.getInstance().getApplicationManagementService()
+                    .importSPApplication(spFileContent, spBasicInfo, tenantDomain, applicationOwner, false);
+            if (importResponse.getResponseCode() != CREATED) {
+                if (log.isDebugEnabled()) {
+                    log.debug("OAuth app: " + spName + " registration failed in tenantDomain: " + tenantDomain + ". " +
+                            "Deleting the service provider: " + spName + " to rollback.");
+                }
+                throw new DCRMException("Error in creating the service provider.");
+            }
+            serviceProvider = importResponse.getApplication();
+        } catch (IdentityApplicationManagementException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("OAuth app: " + spName + " registration failed in tenantDomain: " + tenantDomain + ". " +
+                        "Deleting the service provider: " + spName + " to rollback.");
+            }
+            deleteServiceProvider(spName, tenantDomain, applicationOwner);
+            throw new DCRMException("Error in creating the service provider.", e);
+        } catch (IdentityApplicationTemplateMgtException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("OAuth app: " + spName + " registration failed in tenantDomain: " + tenantDomain + ". " +
+                        "Deleting the service provider: " + spName + " to rollback.");
+            }
+            deleteServiceProvider(spName, tenantDomain, applicationOwner);
+            throw new DCRMException("Error in loading the service provider template.", e);
+        }
+        return serviceProvider;
+    }
+
+    private SpFileContent getSpFileContent(String tenantDomain, String templateName)
+            throws IdentityApplicationTemplateMgtException {
+
+        SpTemplateDTO spTemplateDTO = DCRDataHolder.getInstance().getApplicationTemplateManagementService()
+                .loadApplicationTemplate(templateName, tenantDomain);
+
+        SpFileContent spFileContent = new SpFileContent();
+        if (spTemplateDTO != null) {
+            spFileContent.setContent(spTemplateDTO.getSpContent());
+        }
+        return spFileContent;
+    }
+
+    private ApplicationBasicInfo getSPBasicInfo(String spName) {
+
+        ApplicationBasicInfo spBasicInfo = new ApplicationBasicInfo();
+        spBasicInfo.setApplicationName(spName);
+        spBasicInfo.setDescription("Service Provider for application " + spName);
+        return spBasicInfo;
+    }
+
+    private String getTemplateName(List<CustomMetadata> customMetadataList) {
+
+        String templateName = null;
+        for (CustomMetadata customMetadata : customMetadataList) {
+            if (customMetadata.getName()
+                    .equals(DCRMConstants.ClientMetadata.SP_TEMPLATE_NAME)) {
+                templateName = customMetadata.getValue().get(0);
+            }
+        }
+        return templateName;
     }
 
     private Application buildResponse(OAuthConsumerAppDTO createdApp) {
@@ -302,7 +394,7 @@ public class DCRMService {
         sp.setOwner(user);
         sp.setDescription("Service Provider for application " + spName);
 
-        createServiceProvider(sp, applicationOwner, tenantDomain);
+        createServiceProvider(sp, tenantDomain, applicationOwner);
 
         // Get created service provider.
         ServiceProvider clientSP = getServiceProvider(spName, tenantDomain);
@@ -352,14 +444,31 @@ public class DCRMService {
         }
     }
 
-    private void createServiceProvider(ServiceProvider serviceProvider,
-                                       String applicationName, String tenantDomain) throws DCRMException {
+    private void updateServiceProviderFromTemplate(String applicationOwner, String tenantDomain,
+                                                              String spName, String updatedSpName, String templateName)
+            throws DCRMException {
+
+        try {
+            SpFileContent spFileContent = getSpFileContent(tenantDomain, templateName);
+            ApplicationBasicInfo spBasicInfo = getSPBasicInfo(updatedSpName);
+
+            DCRDataHolder.getInstance().getApplicationManagementService()
+                    .updateApplication(spName, spFileContent, spBasicInfo, tenantDomain, applicationOwner);
+        } catch (IdentityApplicationManagementException | IdentityApplicationTemplateMgtException e) {
+            throw DCRMUtils.generateServerException(
+                    DCRMConstants.ErrorMessages.FAILED_TO_UPDATE_SP, spName, e);
+
+        }
+    }
+
+    private void createServiceProvider(ServiceProvider serviceProvider, String tenantDomain, String username)
+            throws DCRMException {
         try {
             DCRDataHolder.getInstance().getApplicationManagementService()
-                    .createApplication(serviceProvider, tenantDomain, applicationName);
+                    .createApplication(serviceProvider, tenantDomain, username);
         } catch (IdentityApplicationManagementException e) {
             String errorMessage =
-                    "Error while creating service provider: " + applicationName + " in tenant: " + tenantDomain;
+                    "Error while creating service provider: " + username + " in tenant: " + tenantDomain;
             throw new DCRMException(ErrorCodes.BAD_REQUEST.toString(), errorMessage, e);
         }
     }

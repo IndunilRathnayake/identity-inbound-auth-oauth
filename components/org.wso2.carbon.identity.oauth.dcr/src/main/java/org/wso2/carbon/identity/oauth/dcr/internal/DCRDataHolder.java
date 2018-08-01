@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.oauth.dcr.internal;
 
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.application.template.mgt.ApplicationTemplateManagementService;
 import org.wso2.carbon.identity.oauth.dcr.handler.RegistrationHandler;
 import org.wso2.carbon.identity.oauth.dcr.handler.UnRegistrationHandler;
 
@@ -33,6 +34,7 @@ public class DCRDataHolder {
 
     private static DCRDataHolder thisInstance = new DCRDataHolder();
     private ApplicationManagementService applicationManagementService = null;
+    private ApplicationTemplateManagementService applicationTemplateManagementService = null;
     private List<RegistrationHandler> registrationHandlerList = new ArrayList<>();
     private List<UnRegistrationHandler> unRegistrationHandlerList = new ArrayList<>();
 
@@ -54,6 +56,13 @@ public class DCRDataHolder {
         this.applicationManagementService = applicationManagementService;
     }
 
+    public ApplicationTemplateManagementService getApplicationTemplateManagementService() {
+        return applicationTemplateManagementService;
+    }
+
+    public void setApplicationTemplateManagementService(ApplicationTemplateManagementService applicationTemplateManagementService) {
+        this.applicationTemplateManagementService = applicationTemplateManagementService;
+    }
 
     public List<RegistrationHandler> getRegistrationHandlerList() {
         return registrationHandlerList;

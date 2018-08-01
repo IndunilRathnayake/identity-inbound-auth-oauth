@@ -47,6 +47,9 @@ public class RegistrationRequestDTO  {
   private List<String> responseTypes = new ArrayList<String>();
 
   
+  private List<CustomMetadataDTO> customMetadata = new ArrayList<CustomMetadataDTO>();
+
+  
   /**
    **/
   @ApiModelProperty(required = true, value = "")
@@ -167,6 +170,18 @@ public class RegistrationRequestDTO  {
   }
 
   
+  /**
+   **/
+  @ApiModelProperty(value = "")
+  @JsonProperty("custom_metadata")
+  public List<CustomMetadataDTO> getCustomMetadata() {
+    return customMetadata;
+  }
+  public void setCustomMetadata(List<CustomMetadataDTO> customMetadata) {
+    this.customMetadata = customMetadata;
+  }
+
+  
 
   @Override
   public String toString()  {
@@ -183,6 +198,7 @@ public class RegistrationRequestDTO  {
     sb.append("  post_logout_redirect_uris: ").append(postLogoutRedirectUris).append("\n");
     sb.append("  request_uris: ").append(requestUris).append("\n");
     sb.append("  response_types: ").append(responseTypes).append("\n");
+    sb.append("  custom_metadata: ").append(customMetadata).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

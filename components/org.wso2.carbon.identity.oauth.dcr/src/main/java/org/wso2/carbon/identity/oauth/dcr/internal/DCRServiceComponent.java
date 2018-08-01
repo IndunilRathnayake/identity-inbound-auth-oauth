@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.application.authentication.framework.inbound.Htt
 import org.wso2.carbon.identity.application.authentication.framework.inbound.HttpIdentityResponseFactory;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.IdentityProcessor;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.application.template.mgt.ApplicationTemplateManagementService;
 import org.wso2.carbon.identity.oauth.dcr.factory.HttpRegistrationResponseFactory;
 import org.wso2.carbon.identity.oauth.dcr.factory.HttpUnregistrationResponseFactory;
 import org.wso2.carbon.identity.oauth.dcr.factory.RegistrationRequestFactory;
@@ -187,6 +188,42 @@ public class DCRServiceComponent {
             log.debug("Unsetting ApplicationManagement.");
         }
         DCRDataHolder.getInstance().setApplicationManagementService(null);
+    }
+
+    /**
+     * Sets ApplicationTemplateManagement Service.
+     *
+     * @param applicationTemplateManagementService An instance of ApplicationTemplateManagementService
+     */
+    @Reference(
+            name = "application.template.mgt.service",
+            service = ApplicationTemplateManagementService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetApplicationTemplateManagementService"
+    )
+    protected void setApplicationTemplateManagementService(ApplicationTemplateManagementService
+                                                                   applicationTemplateManagementService) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Setting ApplicationTemplateManagement Service");
+        }
+        DCRDataHolder.getInstance().
+                setApplicationTemplateManagementService(applicationTemplateManagementService);
+    }
+
+    /**
+     * Unsets ApplicationTemplateManagementService Service.
+     *
+     * @param applicationTemplateManagementService An instance of ApplicationTemplateManagementService
+     */
+    protected void unsetApplicationTemplateManagementService(ApplicationTemplateManagementService
+                                                                     applicationTemplateManagementService) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Unsetting ApplicationTemplateManagementService.");
+        }
+        DCRDataHolder.getInstance().setApplicationTemplateManagementService(null);
     }
 
 

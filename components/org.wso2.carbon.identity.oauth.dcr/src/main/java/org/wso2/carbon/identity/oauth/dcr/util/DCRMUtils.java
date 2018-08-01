@@ -129,4 +129,14 @@ public class DCRMUtils {
             return false;
         }
     }
+
+    /**
+     * Check whether default template support is enable for DCRM.
+     *
+     * @return true if default template support is enabled
+     */
+    public static boolean isEnableDefaultTemplateSupport() {
+
+        return Boolean.parseBoolean(IdentityUtil.getProperty(DCRConstants.ENABLE_DEFAULT_TEMPLATE_SUPPORT_DCRM));
+    }
 }
