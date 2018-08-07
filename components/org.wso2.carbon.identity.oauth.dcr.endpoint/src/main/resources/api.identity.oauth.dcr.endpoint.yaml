@@ -29,15 +29,13 @@ paths:
       description: |
         This API is used to create an OAuth2 application. If your want to create your application to use the implicit or authorization_code 
         grant types, you need to provide the redirect_uris field in your request. If you are using any other grant type, 
-        such as password, you don't need to send the redirect_uri field in the request. You can send any custom client metadata
-        in custom_metadata field in your request. Check the example that is given below.
+        such as password, you don't need to send the redirect_uri field in the request. Check the example that is given below.
       x-wso2-request: |
         curl -X POST -H "Authorization: Basic YWRtaW46YWRtaW4=" -H
         "Content-Type: application/json" -d '{
           "redirect_uris":[""],
           "client_name": "application_1",
-          "grant_types": ["password"],
-          "custom_metadata": [{"name":"sp_template_name","value":["template_1"]}] }'
+          "grant_types": ["password"] }'
         "https://localhost:9443/api/identity/oauth2/dcr/v1.0/register"
       x-wso2-response: |
         "HTTP/1.1 201 Created"
@@ -153,8 +151,7 @@ paths:
           "redirect_uris":["https://client.example.org/callback"],
           "client_name": "application_1",
           "ext_param_owner": "application_owner",
-          "grant_types": ["password"],
-          "custom_metadata": [{"name":"sp_template_name","value":["template_1"]}] }'
+          "grant_types": ["password"] }'
         "https://localhost:9443/api/identity/oauth2/dcr/v1.0/register"
       x-wso2-response: |
         "HTTP/1.1 200 OK"
@@ -240,10 +237,8 @@ definitions:
         type: array
         items:
           type: string
-      custom_metadata:
-        type: array
-        items:
-          $ref: '#/definitions/customMetadata'
+      ext_param_sp_template:
+        type: string
 
 #-----------------------------------------------------
 # The Application Update Request Object
@@ -261,10 +256,7 @@ definitions:
         type: array
         items:
           type: string
-      custom_metadata:
-        type: array
-        items:
-          $ref: '#/definitions/customMetadata'
+
 #-----------------------------------------------------
 # The OAuth2 Application Object
 #-----------------------------------------------------
@@ -283,19 +275,6 @@ definitions:
           type: string
       client_name:
         type: string
-
-#-----------------------------------------------------
-# The Custom Metadata object
-#-----------------------------------------------------
-  customMetadata:
-    type: object
-    properties:
-      name:
-        type: string
-      value:
-        type: array
-        items:
-          type: string
 
 #-----------------------------------------------------
 # The Error Response object

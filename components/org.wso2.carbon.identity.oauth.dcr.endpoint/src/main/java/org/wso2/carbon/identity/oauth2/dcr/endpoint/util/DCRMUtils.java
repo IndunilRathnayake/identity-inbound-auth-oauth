@@ -21,21 +21,16 @@ package org.wso2.carbon.identity.oauth2.dcr.endpoint.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.dcr.DCRMConstants;
 import org.wso2.carbon.identity.oauth.dcr.bean.ApplicationRegistrationRequest;
 import org.wso2.carbon.identity.oauth.dcr.bean.ApplicationUpdateRequest;
-import org.wso2.carbon.identity.oauth.dcr.bean.CustomMetadata;
 import org.wso2.carbon.identity.oauth.dcr.exception.DCRMException;
 import org.wso2.carbon.identity.oauth.dcr.service.DCRMService;
 import org.wso2.carbon.identity.oauth2.dcr.endpoint.Exceptions.DCRMEndpointException;
-import org.wso2.carbon.identity.oauth2.dcr.endpoint.dto.CustomMetadataDTO;
 import org.wso2.carbon.identity.oauth2.dcr.endpoint.dto.ErrorDTO;
 import org.wso2.carbon.identity.oauth2.dcr.endpoint.dto.RegistrationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dcr.endpoint.dto.UpdateRequestDTO;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.core.Response;
 
 /**
@@ -50,29 +45,9 @@ public class DCRMUtils {
     private static final String NOT_FOUND_STATUS = "NOT_FOUND_";
     private static final String DCRM_SERVICE_ClASS= "OAuth.DCRM.DCRMService";
 
-    /**
-     * Get the OSGI service for DCRM functionality.
-     *
-     * @return DCRMService instance
-     * @throws DCRMEndpointException
-     */
-    public static DCRMService getOAuth2DCRMService() throws DCRMEndpointException {
-
-        String serviceClassName = IdentityUtil.getProperty(DCRM_SERVICE_ClASS);
-        DCRMService dcrmService = null;
-        if (serviceClassName != null) {
-            try {
-                dcrmService = (DCRMService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                        .getOSGiService(Class.forName(serviceClassName), null);
-            } catch (ClassNotFoundException e) {
-                DCRMUtils.handleErrorResponse(new DCRMException(String.format("Error in getting configured " +
-                        "DCRMService OSGI service: %s", dcrmService), e), LOG);
-            }
-        } else {
-            dcrmService = (DCRMService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                    .getOSGiService(DCRMService.class, null);
-        }
-        return dcrmService;
+    public static DCRMService getOAuth2DCRMService() {
+        return (DCRMService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getOSGiService(DCRMService.class, null);
     }
 
     public static ApplicationRegistrationRequest getApplicationRegistrationRequest(RegistrationRequestDTO registrationRequestDTO) {
@@ -81,7 +56,6 @@ public class DCRMUtils {
         appRegistrationRequest.setClientName(registrationRequestDTO.getClientName());
         appRegistrationRequest.setRedirectUris(registrationRequestDTO.getRedirectUris());
         appRegistrationRequest.setGrantTypes(registrationRequestDTO.getGrantTypes());
-        appRegistrationRequest.setCustomMetadata(convertCustomMetadata(registrationRequestDTO.getCustomMetadata()));
         return appRegistrationRequest;
 
     }
@@ -92,7 +66,6 @@ public class DCRMUtils {
         applicationUpdateRequest.setClientName(updateRequestDTO.getClientName());
         applicationUpdateRequest.setRedirectUris(updateRequestDTO.getRedirectUris());
         applicationUpdateRequest.setGrantTypes(updateRequestDTO.getGrantTypes());
-        applicationUpdateRequest.setCustomMetadata(convertCustomMetadata(updateRequestDTO.getCustomMetadata()));
         return applicationUpdateRequest;
 
     }
@@ -161,18 +134,6 @@ public class DCRMUtils {
             errorDTO.setErrorDescription(description);
             return new DCRMEndpointException(status, errorDTO);
         }
-    }
-
-    private static List<CustomMetadata> convertCustomMetadata(List<CustomMetadataDTO> customMetadataDTOList) {
-
-        List<CustomMetadata> customMetadataList = new ArrayList<>();
-        for (CustomMetadataDTO customMetadataDTO : customMetadataDTOList) {
-            CustomMetadata customMetadata = new CustomMetadata();
-            customMetadata.setName(customMetadataDTO.getName());
-            customMetadata.setValue(customMetadataDTO.getValue());
-            customMetadataList.add(customMetadata);
-        }
-        return customMetadataList;
     }
 
 }

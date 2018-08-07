@@ -29,7 +29,7 @@ public class ApplicationRegistrationRequest implements Serializable {
     private List<String> redirectUris = new ArrayList<String>();
     private String clientName = null;
     private List<String> grantTypes = new ArrayList<String>();
-    private List<CustomMetadata> customMetadata = new ArrayList<>();
+    private String spTemplateName = null;
 
     public List<String> getRedirectUris() {
         return redirectUris;
@@ -56,22 +56,20 @@ public class ApplicationRegistrationRequest implements Serializable {
     }
 
     /**
-     * Get custom client metadata.
+     * Get SP template name.
      *
-     * @return custom client metadata info
+     * @return sp template name
      */
-    public List<CustomMetadata> getCustomMetadata() {
-
-        return customMetadata;
+    public String getSpTemplateName() {
+        return spTemplateName;
     }
 
     /**
-     * Set custom client metadata info.
+     * Set SP template name.
      *
-     * @param customMetadata custom client metadata info
+     * @param spTemplateName sp template name
      */
-    public void setCustomMetadata(List<CustomMetadata> customMetadata) {
-
-        this.customMetadata = customMetadata;
+    public void setSpTemplateName(String spTemplateName) {
+        this.spTemplateName = spTemplateName;
     }
 }

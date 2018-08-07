@@ -186,8 +186,7 @@ public class DCRMService {
         String applicationOwner = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String spName = registrationRequest.getClientName();
-        List<CustomMetadata> customMetadataList = registrationRequest.getCustomMetadata();
-        String templateName = getTemplateName(customMetadataList);
+        String templateName = registrationRequest.getSpTemplateName();
 
         // Regex validation of the application name.
         if (!DCRMUtils.isRegexValidated(spName)) {
@@ -200,14 +199,8 @@ public class DCRMService {
             throw DCRMUtils.generateClientException(DCRMConstants.ErrorMessages.CONFLICT_EXISTING_APPLICATION, spName);
         }
 
-        ServiceProvider serviceProvider;
-        if (templateName != null || DCRMUtils.isEnableDefaultTemplateSupport()) {
-            // Create a service provider using the requested template.
-            serviceProvider = createServiceProviderFromTemplate(applicationOwner, tenantDomain, spName, templateName);
-        } else {
-            // Create a service provider.
-            serviceProvider = createServiceProvider(applicationOwner, tenantDomain, spName);
-        }
+        // Create a service provider.
+        ServiceProvider serviceProvider = createServiceProvider(applicationOwner, tenantDomain, spName, templateName);
 
         OAuthConsumerAppDTO createdApp;
         try {
@@ -232,7 +225,7 @@ public class DCRMService {
         return buildResponse(createdApp);
     }
 
-    private ServiceProvider createServiceProviderFromTemplate(String applicationOwner, String tenantDomain, String spName,
+/*    private ServiceProvider createServiceProviderFromTemplate(String applicationOwner, String tenantDomain, String spName,
                                                               String templateName) throws DCRMException {
         ServiceProvider serviceProvider;
         try {
@@ -265,7 +258,7 @@ public class DCRMService {
             throw new DCRMException("Error in loading the service provider template.", e);
         }
         return serviceProvider;
-    }
+    }*/
 
     private SpFileContent getSpFileContent(String tenantDomain, String templateName)
             throws IdentityApplicationTemplateMgtException {
@@ -384,7 +377,7 @@ public class DCRMService {
     }
 
     private ServiceProvider createServiceProvider(String applicationOwner, String tenantDomain,
-                                                  String spName) throws DCRMException {
+                                                  String spName, String templateName) throws DCRMException {
         // Create the Service Provider
         ServiceProvider sp = new ServiceProvider();
         sp.setApplicationName(spName);
@@ -394,7 +387,7 @@ public class DCRMService {
         sp.setOwner(user);
         sp.setDescription("Service Provider for application " + spName);
 
-        createServiceProvider(sp, tenantDomain, applicationOwner);
+        createServiceProvider(sp, tenantDomain, applicationOwner, templateName);
 
         // Get created service provider.
         ServiceProvider clientSP = getServiceProvider(spName, tenantDomain);
@@ -461,11 +454,11 @@ public class DCRMService {
         }
     }
 
-    private void createServiceProvider(ServiceProvider serviceProvider, String tenantDomain, String username)
-            throws DCRMException {
+    private void createServiceProvider(ServiceProvider serviceProvider, String tenantDomain, String username,
+                                       String templateName) throws DCRMException {
         try {
             DCRDataHolder.getInstance().getApplicationManagementService()
-                    .createApplication(serviceProvider, tenantDomain, username);
+                    .createApplication(serviceProvider, tenantDomain, username, templateName);
         } catch (IdentityApplicationManagementException e) {
             String errorMessage =
                     "Error while creating service provider: " + username + " in tenant: " + tenantDomain;

@@ -29,7 +29,6 @@ public class ApplicationUpdateRequest implements Serializable {
     private List<String> redirectUris = new ArrayList<String>();
     private String clientName = null;
     private List<String> grantTypes = new ArrayList<String>();
-    private List<CustomMetadata> customMetadata = new ArrayList<>();
 
     public List<String> getRedirectUris() {
         return redirectUris;
@@ -55,23 +54,4 @@ public class ApplicationUpdateRequest implements Serializable {
         this.grantTypes = grantTypes;
     }
 
-    /**
-     * Get custom client metadata.
-     *
-     * @return custom client metadata info
-     */
-    public List<CustomMetadata> getCustomMetadata() {
-
-        return customMetadata;
-    }
-
-    /**
-     * Set custom client metadata info.
-     *
-     * @param customMetadata custom client metadata info
-     */
-    public void setCustomMetadata(List<CustomMetadata> customMetadata) {
-
-        this.customMetadata = customMetadata;
-    }
 }

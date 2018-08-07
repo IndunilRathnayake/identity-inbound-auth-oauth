@@ -47,7 +47,7 @@ public class RegistrationRequestDTO  {
   private List<String> responseTypes = new ArrayList<String>();
 
   
-  private List<CustomMetadataDTO> customMetadata = new ArrayList<CustomMetadataDTO>();
+  private String spTemplateName = null;
 
   
   /**
@@ -173,12 +173,12 @@ public class RegistrationRequestDTO  {
   /**
    **/
   @ApiModelProperty(value = "")
-  @JsonProperty("custom_metadata")
-  public List<CustomMetadataDTO> getCustomMetadata() {
-    return customMetadata;
+  @JsonProperty("ext_param_sp_template")
+  public String getSpTemplateName() {
+    return spTemplateName;
   }
-  public void setCustomMetadata(List<CustomMetadataDTO> customMetadata) {
-    this.customMetadata = customMetadata;
+  public void setSpTemplateName(String spTemplateName) {
+    this.spTemplateName = spTemplateName;
   }
 
   
@@ -198,7 +198,7 @@ public class RegistrationRequestDTO  {
     sb.append("  post_logout_redirect_uris: ").append(postLogoutRedirectUris).append("\n");
     sb.append("  request_uris: ").append(requestUris).append("\n");
     sb.append("  response_types: ").append(responseTypes).append("\n");
-    sb.append("  custom_metadata: ").append(customMetadata).append("\n");
+    sb.append("  ext_param_sp_template: ").append(spTemplateName).append("\n");
     sb.append("}\n");
     return sb.toString();
   }
