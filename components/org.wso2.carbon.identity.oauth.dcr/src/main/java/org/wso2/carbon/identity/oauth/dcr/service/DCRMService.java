@@ -109,27 +109,17 @@ public class DCRMService {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String applicationOwner = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String clientName = updateRequest.getClientName();
-        List<CustomMetadata> customMetadataList = updateRequest.getCustomMetadata();
-        String templateName = getTemplateName(customMetadataList);
 
         // Update Service Provider
+        ServiceProvider sp = getServiceProvider(appDTO.getApplicationName(), tenantDomain);
         if (StringUtils.isNotEmpty(clientName)) {
             // Regex validation of the application name.
             if (!DCRMUtils.isRegexValidated(clientName)) {
                 throw new DCRMException("The Application name: " + clientName + " is not valid! It is not adhering to" +
                         " the regex: " + DCRConstants.APP_NAME_VALIDATING_REGEX);
             }
-            if (templateName == null && !DCRMUtils.isEnableDefaultTemplateSupport()) {
-                ServiceProvider sp = getServiceProvider(appDTO.getApplicationName(), tenantDomain);
-                sp.setApplicationName(clientName);
-                updateServiceProvider(sp, tenantDomain, applicationOwner);
-            }
-        }
-
-        if (templateName != null || DCRMUtils.isEnableDefaultTemplateSupport()) {
-            // Update service provider using the requested template.
-            updateServiceProviderFromTemplate(applicationOwner, tenantDomain, appDTO.getApplicationName(),
-                    clientName, templateName);
+            sp.setApplicationName(clientName);
+            updateServiceProvider(sp, tenantDomain, applicationOwner);
         }
 
         // Update application
@@ -223,62 +213,6 @@ public class DCRMService {
             throw ex;
         }
         return buildResponse(createdApp);
-    }
-
-/*    private ServiceProvider createServiceProviderFromTemplate(String applicationOwner, String tenantDomain, String spName,
-                                                              String templateName) throws DCRMException {
-        ServiceProvider serviceProvider;
-        try {
-            SpFileContent spFileContent = getSpFileContent(tenantDomain, templateName);
-            ApplicationBasicInfo spBasicInfo = getSPBasicInfo(spName);
-
-            ImportResponse importResponse = DCRDataHolder.getInstance().getApplicationManagementService()
-                    .importSPApplication(spFileContent, spBasicInfo, tenantDomain, applicationOwner, false);
-            if (importResponse.getResponseCode() != CREATED) {
-                if (log.isDebugEnabled()) {
-                    log.debug("OAuth app: " + spName + " registration failed in tenantDomain: " + tenantDomain + ". " +
-                            "Deleting the service provider: " + spName + " to rollback.");
-                }
-                throw new DCRMException("Error in creating the service provider.");
-            }
-            serviceProvider = importResponse.getApplication();
-        } catch (IdentityApplicationManagementException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("OAuth app: " + spName + " registration failed in tenantDomain: " + tenantDomain + ". " +
-                        "Deleting the service provider: " + spName + " to rollback.");
-            }
-            deleteServiceProvider(spName, tenantDomain, applicationOwner);
-            throw new DCRMException("Error in creating the service provider.", e);
-        } catch (IdentityApplicationTemplateMgtException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("OAuth app: " + spName + " registration failed in tenantDomain: " + tenantDomain + ". " +
-                        "Deleting the service provider: " + spName + " to rollback.");
-            }
-            deleteServiceProvider(spName, tenantDomain, applicationOwner);
-            throw new DCRMException("Error in loading the service provider template.", e);
-        }
-        return serviceProvider;
-    }*/
-
-    private SpFileContent getSpFileContent(String tenantDomain, String templateName)
-            throws IdentityApplicationTemplateMgtException {
-
-        SpTemplateDTO spTemplateDTO = DCRDataHolder.getInstance().getApplicationTemplateManagementService()
-                .loadApplicationTemplate(templateName, tenantDomain);
-
-        SpFileContent spFileContent = new SpFileContent();
-        if (spTemplateDTO != null) {
-            spFileContent.setContent(spTemplateDTO.getSpContent());
-        }
-        return spFileContent;
-    }
-
-    private ApplicationBasicInfo getSPBasicInfo(String spName) {
-
-        ApplicationBasicInfo spBasicInfo = new ApplicationBasicInfo();
-        spBasicInfo.setApplicationName(spName);
-        spBasicInfo.setDescription("Service Provider for application " + spName);
-        return spBasicInfo;
     }
 
     private String getTemplateName(List<CustomMetadata> customMetadataList) {
@@ -437,16 +371,12 @@ public class DCRMService {
         }
     }
 
-    private void updateServiceProviderFromTemplate(String applicationOwner, String tenantDomain,
-                                                              String spName, String updatedSpName, String templateName)
+    private void updateServiceProviderFromTemplate(String applicationOwner, String tenantDomain, String spName)
             throws DCRMException {
 
         try {
-            SpFileContent spFileContent = getSpFileContent(tenantDomain, templateName);
-            ApplicationBasicInfo spBasicInfo = getSPBasicInfo(updatedSpName);
-
             DCRDataHolder.getInstance().getApplicationManagementService()
-                    .updateApplication(spName, spFileContent, spBasicInfo, tenantDomain, applicationOwner);
+                    .updateApplication(spName, tenantDomain, applicationOwner);
         } catch (IdentityApplicationManagementException | IdentityApplicationTemplateMgtException e) {
             throw DCRMUtils.generateServerException(
                     DCRMConstants.ErrorMessages.FAILED_TO_UPDATE_SP, spName, e);
