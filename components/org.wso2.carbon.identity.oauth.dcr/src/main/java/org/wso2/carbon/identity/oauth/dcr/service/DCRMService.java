@@ -321,7 +321,8 @@ public class DCRMService {
         sp.setOwner(user);
         sp.setDescription("Service Provider for application " + spName);
 
-        createServiceProvider(sp, tenantDomain, applicationOwner, templateName);
+        SpTemplateDTO spTemplateDTO = getApplicationTemplateInfo(templateName, tenantDomain);
+        createServiceProvider(sp, tenantDomain, applicationOwner, spTemplateDTO.getSpContent());
 
         // Get created service provider.
         ServiceProvider clientSP = getServiceProvider(spName, tenantDomain);
@@ -371,24 +372,24 @@ public class DCRMService {
         }
     }
 
-    private void updateServiceProviderFromTemplate(String applicationOwner, String tenantDomain, String spName)
+    private SpTemplateDTO getApplicationTemplateInfo(String templateName, String tenantDomain)
             throws DCRMException {
 
         try {
-            DCRDataHolder.getInstance().getApplicationManagementService()
-                    .updateApplication(spName, tenantDomain, applicationOwner);
-        } catch (IdentityApplicationManagementException | IdentityApplicationTemplateMgtException e) {
-            throw DCRMUtils.generateServerException(
-                    DCRMConstants.ErrorMessages.FAILED_TO_UPDATE_SP, spName, e);
-
+            return DCRDataHolder.getInstance().getApplicationTemplateManagementService()
+                    .loadApplicationTemplate(templateName, tenantDomain);
+        } catch (IdentityApplicationTemplateMgtException e) {
+            String errorMessage =
+                    "Error while getting service provider template: " + templateName + " in tenant: " + tenantDomain;
+            throw new DCRMException(ErrorCodes.BAD_REQUEST.toString(), errorMessage, e);
         }
     }
 
     private void createServiceProvider(ServiceProvider serviceProvider, String tenantDomain, String username,
-                                       String templateName) throws DCRMException {
+                                       String spTemplateInfo) throws DCRMException {
         try {
             DCRDataHolder.getInstance().getApplicationManagementService()
-                    .createApplication(serviceProvider, tenantDomain, username, templateName);
+                    .createApplication(serviceProvider, tenantDomain, username, spTemplateInfo);
         } catch (IdentityApplicationManagementException e) {
             String errorMessage =
                     "Error while creating service provider: " + username + " in tenant: " + tenantDomain;

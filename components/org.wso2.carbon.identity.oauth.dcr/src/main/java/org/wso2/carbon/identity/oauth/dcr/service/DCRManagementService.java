@@ -151,7 +151,7 @@ public class DCRManagementService {
             try {
                 existingServiceProvider = appMgtService.getServiceProvider(applicationName, profile.getTenantDomain());
                 if (existingServiceProvider == null) {
-                    appMgtService.createApplication(serviceProvider, profile.getTenantDomain(), userName);
+                    appMgtService.createApplication(serviceProvider, profile.getTenantDomain(), userName, null);
                     createdServiceProvider = appMgtService.getServiceProvider(applicationName,
                                                                               profile.getTenantDomain());
                 } else {
