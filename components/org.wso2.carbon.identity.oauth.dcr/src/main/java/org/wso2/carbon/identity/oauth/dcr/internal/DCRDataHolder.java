@@ -56,11 +56,21 @@ public class DCRDataHolder {
         this.applicationManagementService = applicationManagementService;
     }
 
+    /**
+     * Get ApplicationTemplateManagementService reference
+     * @return applicationTemplateManagementService instance
+     */
     public ApplicationTemplateManagementService getApplicationTemplateManagementService() {
+
         return applicationTemplateManagementService;
     }
 
+    /**
+     * Set ApplicationTemplateManagementService reference
+     * @param applicationTemplateManagementService applicationTemplateManagementService instance
+     */
     public void setApplicationTemplateManagementService(ApplicationTemplateManagementService applicationTemplateManagementService) {
+
         this.applicationTemplateManagementService = applicationTemplateManagementService;
     }
 

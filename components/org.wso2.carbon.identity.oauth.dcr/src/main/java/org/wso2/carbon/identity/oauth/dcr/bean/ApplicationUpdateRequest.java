@@ -53,5 +53,4 @@ public class ApplicationUpdateRequest implements Serializable {
     public void setGrantTypes(List<String> grantTypes) {
         this.grantTypes = grantTypes;
     }
-
 }

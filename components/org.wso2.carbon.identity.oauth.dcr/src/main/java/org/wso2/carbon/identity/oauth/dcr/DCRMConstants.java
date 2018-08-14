@@ -23,18 +23,25 @@ public class DCRMConstants {
     public enum ErrorMessages {
 
         CONFLICT_EXISTING_APPLICATION("Application with the name %s already exist in the system"),
-        FAILED_TO_REGISTER_SP("Error occurred while creating service provider %s"),
-        FAILED_TO_GET_SP("Error occurred while retrieving service provider %s"),
-        FAILED_TO_UPDATE_SP("Error occurred while updating service provider %s"),
-        FAILED_TO_DELETE_SP("Error occurred while deleting service provider %s"),
-        FAILED_TO_REGISTER_APPLICATION("Error occurred while creating application with application name:  %s"),
-        FAILED_TO_GET_APPLICATION("Error occurred while retrieving application with application name: %s"),
-        FAILED_TO_GET_APPLICATION_BY_ID("Error occurred while retrieving application with client key: %s"),
-        FAILED_TO_UPDATE_APPLICATION("Error occurred while updating application with client key: %s"),
+        FAILED_TO_REGISTER_SP("Error occurred while creating service provider %s" ),
+        FAILED_TO_GET_SP("Error occurred while retrieving service provider %s" ),
+        FAILED_TO_UPDATE_SP("Error occurred while updating service provider %s" ),
+        FAILED_TO_DELETE_SP("Error occurred while deleting service provider %s" ),
+        FAILED_TO_REGISTER_APPLICATION("Error occurred while creating application with application name:  %s" ),
+        FAILED_TO_GET_APPLICATION("Error occurred while retrieving application with application name: %s" ),
+        FAILED_TO_GET_APPLICATION_BY_ID("Error occurred while retrieving application with client key: %s" ),
+        FAILED_TO_UPDATE_APPLICATION("Error occurred while updating application with client key: %s" ),
         BAD_REQUEST_INVALID_REDIRECT_URI("Invalid redirect URI: %s"),
+        BAD_REQUEST_INVALID_SP_NAME("Client Name is not adhering to the regex: %s"),
         BAD_REQUEST_INVALID_INPUT("%s"),
+        BAD_REQUEST_INSUFFICIENT_DATA("Insufficient data in the request"),
         NOT_FOUND_APPLICATION_WITH_ID("Application not available for given client key: %s"),
+        NOT_FOUND_APPLICATION_WITH_NAME("Application not available for given client name: %s"),
+        CONFLICT_EXISTING_CLIENT_ID("Client id %s already exist in the system"),
+        BAD_REQUEST_CLIENT_ID_VIOLATES_PATTERN("Provided client id is not adhering to the provided regex %s"),
+        FORBIDDEN_UNAUTHORIZED_USER("User does not have access to the application %s"),
         ERROR_CODE_UNEXPECTED("Unexpected error");
+
 
         private final String message;
 
@@ -53,14 +60,5 @@ public class DCRMConstants {
         public static String INVALID_CLIENT_METADATA = "invalid_client_metadata";
         public static String INVALID_SOFTWARE_STATEMENT = "invalid_software_statement";
         public static String UNAPPROVED_SOFTWARE_STATEMENT = "unapproved_software_statement";
-    }
-
-    /**
-     * This holds the client metadata parameter names in DCR request.
-     */
-    public static class ClientMetadata {
-
-        public static final String SP_TEMPLATE_NAME = "sp_template_name";
-
     }
 }

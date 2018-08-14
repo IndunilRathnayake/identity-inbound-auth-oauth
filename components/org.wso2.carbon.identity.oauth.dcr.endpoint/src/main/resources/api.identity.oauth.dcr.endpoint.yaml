@@ -239,7 +239,6 @@ definitions:
           type: string
       ext_param_sp_template:
         type: string
-
 #-----------------------------------------------------
 # The Application Update Request Object
 #-----------------------------------------------------
@@ -256,7 +255,6 @@ definitions:
         type: array
         items:
           type: string
-
 #-----------------------------------------------------
 # The OAuth2 Application Object
 #-----------------------------------------------------
@@ -275,7 +273,6 @@ definitions:
           type: string
       client_name:
         type: string
-
 #-----------------------------------------------------
 # The Error Response object
 #-----------------------------------------------------

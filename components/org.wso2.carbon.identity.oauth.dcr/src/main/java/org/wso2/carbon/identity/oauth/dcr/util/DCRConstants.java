@@ -31,7 +31,6 @@ public final class DCRConstants {
     // Regex for validating application name.
     public static final String APP_NAME_VALIDATING_REGEX = "^[a-zA-Z0-9._-]*$";
     public static final String UNSUPPORTED_CHARACTERS_IN_REGISTRY = "[\\\\/:*?\"`,~!@#$&;%^*()+=<{}>'|]";
-    public static final String ENABLE_DEFAULT_TEMPLATE_SUPPORT_DCRM = "OAuth.DCRM.EnableDefaultTemplateSupport";
 
     public static class DCROperation {
         public static final String DCR_OPERATION_REGISTER = "REGISTER";

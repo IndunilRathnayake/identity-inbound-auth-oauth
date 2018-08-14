@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.oauth2.dcr.endpoint.util;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.oauth.dcr.DCRMConstants;
 import org.wso2.carbon.identity.oauth.dcr.bean.ApplicationRegistrationRequest;
@@ -38,12 +37,9 @@ import javax.ws.rs.core.Response;
  */
 public class DCRMUtils {
 
-    private static final Log LOG = LogFactory.getLog(DCRMUtils.class);
-
     private static final String CONFLICT_STATUS = "CONFLICT_";
     private static final String BAD_REQUEST_STATUS = "BAD_REQUEST_";
     private static final String NOT_FOUND_STATUS = "NOT_FOUND_";
-    private static final String DCRM_SERVICE_ClASS= "OAuth.DCRM.DCRMService";
 
     public static DCRMService getOAuth2DCRMService() {
         return (DCRMService) PrivilegedCarbonContext.getThreadLocalCarbonContext()

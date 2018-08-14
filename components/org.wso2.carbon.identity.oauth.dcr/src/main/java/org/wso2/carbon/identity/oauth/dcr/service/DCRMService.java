@@ -23,12 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
-import org.wso2.carbon.identity.application.common.model.ImportResponse;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationConfig;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.common.model.SpFileContent;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.application.template.mgt.IdentityApplicationTemplateMgtException;
 import org.wso2.carbon.identity.application.template.mgt.dto.SpTemplateDTO;
@@ -40,7 +37,6 @@ import org.wso2.carbon.identity.oauth.dcr.DCRMConstants;
 import org.wso2.carbon.identity.oauth.dcr.bean.Application;
 import org.wso2.carbon.identity.oauth.dcr.bean.ApplicationRegistrationRequest;
 import org.wso2.carbon.identity.oauth.dcr.bean.ApplicationUpdateRequest;
-import org.wso2.carbon.identity.oauth.dcr.bean.CustomMetadata;
 import org.wso2.carbon.identity.oauth.dcr.exception.DCRMException;
 import org.wso2.carbon.identity.oauth.dcr.internal.DCRDataHolder;
 import org.wso2.carbon.identity.oauth.dcr.util.DCRConstants;
@@ -213,18 +209,6 @@ public class DCRMService {
             throw ex;
         }
         return buildResponse(createdApp);
-    }
-
-    private String getTemplateName(List<CustomMetadata> customMetadataList) {
-
-        String templateName = null;
-        for (CustomMetadata customMetadata : customMetadataList) {
-            if (customMetadata.getName()
-                    .equals(DCRMConstants.ClientMetadata.SP_TEMPLATE_NAME)) {
-                templateName = customMetadata.getValue().get(0);
-            }
-        }
-        return templateName;
     }
 
     private Application buildResponse(OAuthConsumerAppDTO createdApp) {
