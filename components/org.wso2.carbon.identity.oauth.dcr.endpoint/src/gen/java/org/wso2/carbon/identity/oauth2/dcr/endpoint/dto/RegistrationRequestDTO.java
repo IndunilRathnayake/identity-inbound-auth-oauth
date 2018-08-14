@@ -206,11 +206,11 @@ public class RegistrationRequestDTO  {
   @ApiModelProperty(value = "")
   @JsonProperty("token_type_extension")
   public String getTokenType() {
-      return tokenType;
+    return tokenType;
   }
 
   public void setTokenType(String tokenType) {
-      this.tokenType = tokenType;
+    this.tokenType = tokenType;
   }
 
   /**
@@ -223,7 +223,6 @@ public class RegistrationRequestDTO  {
   public void setSpTemplateName(String spTemplateName) {
     this.spTemplateName = spTemplateName;
   }
-
 
   @Override
   public String toString()  {
