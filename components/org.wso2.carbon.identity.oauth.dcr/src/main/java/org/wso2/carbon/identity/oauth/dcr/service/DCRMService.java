@@ -457,7 +457,8 @@ public class DCRMService {
                     .createApplication(serviceProvider, tenantDomain, username, spTemplateInfo);
         } catch (IdentityApplicationManagementException e) {
             String errorMessage =
-                    "Error while creating service provider: " + username + " in tenant: " + tenantDomain;
+                    "Error while creating service provider: " + serviceProvider.getApplicationName() +
+                            " in tenant: " + tenantDomain;
             throw new DCRMException(ErrorCodes.BAD_REQUEST.toString(), errorMessage, e);
         }
     }
