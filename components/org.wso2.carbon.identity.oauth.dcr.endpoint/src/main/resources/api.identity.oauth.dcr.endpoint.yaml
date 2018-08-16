@@ -18,7 +18,7 @@ info:
 schemes:
   - https
 host: localhost
-basePath: /api/identity/oauth2/dcr/v1.0
+basePath: /api/identity/oauth2/dcr/v1.1
 consumes:
   - application/json
 produces:

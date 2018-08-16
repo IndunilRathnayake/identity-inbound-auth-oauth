@@ -29,7 +29,7 @@ import org.wso2.carbon.identity.application.authentication.framework.inbound.Htt
 import org.wso2.carbon.identity.application.authentication.framework.inbound.HttpIdentityResponseFactory;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.IdentityProcessor;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
-import org.wso2.carbon.identity.application.template.mgt.ApplicationTemplateManagementService;
+import org.wso2.carbon.identity.application.mgt.ApplicationTemplateManagementService;
 import org.wso2.carbon.identity.oauth.dcr.factory.HttpRegistrationResponseFactory;
 import org.wso2.carbon.identity.oauth.dcr.factory.HttpUnregistrationResponseFactory;
 import org.wso2.carbon.identity.oauth.dcr.factory.RegistrationRequestFactory;

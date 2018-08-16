@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.oauth.dcr.internal;
 
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
-import org.wso2.carbon.identity.application.template.mgt.ApplicationTemplateManagementService;
+import org.wso2.carbon.identity.application.mgt.ApplicationTemplateManagementService;
 import org.wso2.carbon.identity.oauth.dcr.handler.RegistrationHandler;
 import org.wso2.carbon.identity.oauth.dcr.handler.UnRegistrationHandler;
 

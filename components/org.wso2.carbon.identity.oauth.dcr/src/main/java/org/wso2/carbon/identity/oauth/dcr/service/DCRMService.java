@@ -27,8 +27,8 @@ import org.wso2.carbon.identity.application.common.model.InboundAuthenticationCo
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.model.User;
-import org.wso2.carbon.identity.application.template.mgt.IdentityApplicationTemplateMgtException;
-import org.wso2.carbon.identity.application.template.mgt.dto.SpTemplateDTO;
+import org.wso2.carbon.identity.application.mgt.IdentityApplicationTemplateMgtException;
+import org.wso2.carbon.identity.application.mgt.dto.SpTemplateDTO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.OAuthAdminService;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -441,8 +441,8 @@ public class DCRMService {
             throws DCRMException {
 
         try {
-            return DCRDataHolder.getInstance().getApplicationTemplateManagementService()
-                    .loadApplicationTemplate(templateName, tenantDomain);
+            return DCRDataHolder.getInstance().getApplicationTemplateManagementService().loadApplicationTemplate
+                    (templateName, tenantDomain);
         } catch (IdentityApplicationTemplateMgtException e) {
             String errorMessage =
                     "Error while getting service provider template: " + templateName + " in tenant: " + tenantDomain;
